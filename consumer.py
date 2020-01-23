@@ -6,9 +6,10 @@ import os
 KAFKA_HOST = os.environ["KAFKA_HOST"]
 KAFKA_USER = os.environ["KAFKA_USER"]
 KAFKA_PASSWORD = os.environ["KAFKA_PASSWORD"]
+KAFKA_TOPIC = os.environ["KAFKA_TOPIC"]
 
 class Consumer:
-    def __init__(self, topic="test-topic"):
+    def __init__(self, topic=KAFKA_TOPIC):
         self.consumer = KafkaConsumer(topic,
                                       group_id="consumer",
                                       auto_offset_reset='earliest',
@@ -20,7 +21,6 @@ class Consumer:
 
 
     def read(self):
-        import pdb;pdb.set_trace()
         for msg in self.consumer:
             print(msg)
 

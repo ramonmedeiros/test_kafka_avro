@@ -6,6 +6,7 @@ import os
 KAFKA_HOST = os.environ["KAFKA_HOST"]
 KAFKA_USER = os.environ["KAFKA_USER"]
 KAFKA_PASSWORD = os.environ["KAFKA_PASSWORD"]
+KAFKA_TOPIC = os.environ["KAFKA_TOPIC"]
 
 class Producer:
     def __init__(self):
@@ -18,7 +19,7 @@ class Producer:
                                       )
 
 
-    def send(self, msg, topic="test-topic"):
+    def send(self, msg, topic=KAFKA_TOPIC):
         future = self.producer.send(topic, msg)
 
         # Block for 'synchronous' sends
