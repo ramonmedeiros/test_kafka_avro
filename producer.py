@@ -1,6 +1,5 @@
-from kafka import KafkaProducer
-from kafka.errors import KafkaError
-import os
+from confluent_kafka import Producer
+import os, sys
 
 
 KAFKA_HOST = os.environ["KAFKA_HOST"]
@@ -8,30 +7,31 @@ KAFKA_USER = os.environ["KAFKA_USER"]
 KAFKA_PASSWORD = os.environ["KAFKA_PASSWORD"]
 KAFKA_TOPIC = os.environ["KAFKA_TOPIC"]
 
-class Producer:
+class KafkaProducer:
     def __init__(self):
-        self.producer = KafkaProducer(bootstrap_servers=[KAFKA_HOST],
-                                      sasl_mechanism='PLAIN',
-                                      security_protocol='SASL_SSL',
-                                      sasl_plain_username=KAFKA_USER,
-                                      sasl_plain_password=KAFKA_PASSWORD,
-                                      compression_type='gzip',
-                                      )
+        self.producer = Producer({
+                                 "bootstrap.servers":[KAFKA_HOST],
+                                 "sasl.mechanism":'PLAIN',
+                                 "security.protocol":'SASL_SSL',
+                                 "sasl.username":KAFKA_USER,
+                                 "sasl.password":KAFKA_PASSWORD,
+                                 "compression.type":'gzip'})
 
 
     def send(self, msg, topic=KAFKA_TOPIC):
-        future = self.producer.send(topic, msg)
-
-        # Block for 'synchronous' sends
         try:
-            record_metadata = future.get(timeout=10)
-        except KafkaError as e:
-            print(f"Error: {e}")
+            self.producer.produce(topic, msg, callback=self.delivery_callback)
+        except Exception as e:
+            print(f"Error while sending message: {e}")
+        self.producer.poll(0)
+        self.producer.flush()
 
-        # Successful result returns assigned partition and offset
-        print(record_metadata.topic)
-        print(record_metadata.partition)
-        print(record_metadata.offset)
+    @staticmethod
+    def delivery_callback(err, msg):
+        if err:
+            sys.stderr.write('%% Message failed delivery: %s\n' % err)
+        else:
+            sys.stderr.write('%% Message delivered to %s [%d] @ %d\n' %
+                             (msg.topic(), msg.partition(), msg.offset()))
 
-
-Producer().send(b"test")
+KafkaProducer().send(b"test")

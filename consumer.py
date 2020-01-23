@@ -1,5 +1,4 @@
-from kafka import KafkaConsumer
-from kafka.errors import KafkaError
+from confluent_kafka import Consumer, KafkaException
 import os
 
 
@@ -8,20 +7,43 @@ KAFKA_USER = os.environ["KAFKA_USER"]
 KAFKA_PASSWORD = os.environ["KAFKA_PASSWORD"]
 KAFKA_TOPIC = os.environ["KAFKA_TOPIC"]
 
-class Consumer:
+class KafkaConsumer:
     def __init__(self, topic=KAFKA_TOPIC):
-        self.consumer = KafkaConsumer(topic,
-                                      group_id="consumer",
-                                      auto_offset_reset='earliest',
-                                      bootstrap_servers=[KAFKA_HOST],
-                                      sasl_mechanism='PLAIN',
-                                      security_protocol='SASL_SSL',
-                                      sasl_plain_username=KAFKA_USER,
-                                      sasl_plain_password=KAFKA_PASSWORD)
+        self.consumer = Consumer({
+                                 "group.id":"consumer",
+                                 "auto.offset.reset":'earliest',
+                                 "bootstrap.servers":[KAFKA_HOST],
+                                 "sasl.mechanism":'PLAIN',
+                                 "security.protocol":'SASL_SSL',
+                                 "sasl.username":KAFKA_USER,
+                                 "sasl.password":KAFKA_PASSWORD,
+                                 "compression.type":'gzip'})
 
+    @staticmethod
+    def print_assignment(consumer, partitions):
+        print('Assignment:', partitions)
 
     def read(self):
-        for msg in self.consumer:
-            print(msg)
+        self.consumer.subscribe([KAFKA_TOPIC], on_assign=self.print_assignment)
+        # Read messages from Kafka, print to stdout
+        try:
+            while True:
+                msg = self.consumer.poll(timeout=1.0)
+                if msg is None:
+                    continue
+                if msg.error():
+                    raise KafkaException(msg.error())
+                else:
+                    # Proper message
+                    sys.stderr.write('%% %s [%d] at offset %d with key %s:\n' %
+                                     (msg.topic(), msg.partition(), msg.offset(),
+                                      str(msg.key())))
+                    print(msg.value())
 
-Consumer().read()
+        except KeyboardInterrupt:
+            sys.stderr.write('%% Aborted by user\n')
+
+        finally:
+            # Close down consumer to commit final offsets.
+            self.consumer.close()
+KafkaConsumer().read()
