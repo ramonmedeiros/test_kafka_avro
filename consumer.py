@@ -1,5 +1,5 @@
 from confluent_kafka import Consumer, KafkaException
-import os
+import os, sys
 
 
 KAFKA_HOST = os.environ["KAFKA_HOST"]
@@ -12,12 +12,12 @@ class KafkaConsumer:
         self.consumer = Consumer({
                                  "group.id":"consumer",
                                  "auto.offset.reset":'earliest',
-                                 "bootstrap.servers":[KAFKA_HOST],
+                                 "bootstrap.servers":KAFKA_HOST,
                                  "sasl.mechanism":'PLAIN',
                                  "security.protocol":'SASL_SSL',
                                  "sasl.username":KAFKA_USER,
                                  "sasl.password":KAFKA_PASSWORD,
-                                 "compression.type":'gzip'})
+                                 })
 
     @staticmethod
     def print_assignment(consumer, partitions):
