@@ -2,11 +2,9 @@ from kafka import KafkaProducer
 from kafka.errors import KafkaError
 import os
 
-import avro
 import avro.schema
 import io, random
 from avro.io import DatumWriter
-
 
 KAFKA_HOST = os.environ["KAFKA_HOST"]
 KAFKA_USER = os.environ["KAFKA_USER"]

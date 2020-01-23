@@ -9,6 +9,7 @@ Install dependencies
 
 ```
 $ python3 producer.py
+$ python3 confluent_producer.py
 ```
 
 
@@ -16,4 +17,5 @@ $ python3 producer.py
 
 ```
 $ python3 consumer.py
+$ python3 confluent_producer.py
 ```
