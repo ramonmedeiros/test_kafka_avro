@@ -1,0 +1,53 @@
+{
+  "protocol" : "SalesEvents",
+  "namespace" : "se.recordunion.financial",
+  "types" : [ {
+    "type" : "enum",
+    "name" : "ReportMarkerToken",
+    "symbols" : [ "Start", "End" ]
+  }, {
+    "type" : "enum",
+    "name" : "DSP",
+    "symbols" : [ "Apple", "Spotify", "YouTube_Music", "YouTube" ]
+  }, {
+    "type" : "fixed",
+    "name" : "country",
+    "size" : 2
+  }, {
+    "type" : "fixed",
+    "name" : "currency",
+    "size" : 3
+  }, {
+    "type" : "record",
+    "name" : "ReportMarker",
+    "fields" : [ {
+      "name" : "token",
+      "type" : "ReportMarkerToken"
+    } ]
+  }, {
+    "type" : "record",
+    "name" : "Event",
+    "fields" : [ {
+      "name" : "isrc",
+      "type" : "string"
+    }, {
+      "name" : "currency",
+      "type" : "currency"
+    }, {
+      "name" : "count",
+      "type" : "int"
+    }, {
+      "name" : "sum",
+      "type" : "string"
+    }, {
+      "name" : "nullableUpc",
+      "type" : [ "string", "null" ],
+      "alias" : [ "upc" ]
+    }, {
+      "name" : "nullableCountry",
+      "type" : [ "country", "null" ],
+      "aliases" : [ "country" ]
+    } ]
+  } ],
+  "messages" : { }
+}
